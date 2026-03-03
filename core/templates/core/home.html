@@ -77,30 +77,6 @@
   </div>
 </div>
 
-<style>
-  /* Scoped styles for home page cards */
-  .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-  }
-
-  .recipe-suggestion-card {
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-  }
-
-  .recipe-suggestion-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md) !important;
-    background: rgba(255, 255, 255, 0.95);
-  }
-</style>
 
 <script>
   async function loadSuggestions() {

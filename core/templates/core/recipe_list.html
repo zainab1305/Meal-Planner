@@ -21,7 +21,7 @@
       <!-- Card Header / Image Placeholder -->
       <div class="position-relative bg-light border-bottom border-light" style="height: 180px; overflow: hidden;">
         <div class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
-          style="background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end)); opacity: 0.8;">
+          style="background: linear-gradient(135deg, var(--bg-base), var(--bg-cream)); opacity: 0.9;">
           <div style="font-size: 4rem; opacity: 0.2; color: var(--primary-dark);">🍳</div>
         </div>
         <div class="position-absolute top-0 end-0 m-3">
@@ -77,59 +77,5 @@
   {% endfor %}
 </div>
 
-<style>
-  .recipe-card {
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    overflow: hidden;
-    border-radius: 20px;
-  }
-
-  .recipe-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .recipe-card .badge {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  .action-btn {
-    background: transparent !important;
-    transition: background 0.2s ease;
-  }
-
-  .action-btn:hover,
-  .action-btn:focus,
-  .dropdown.show .action-btn {
-    background: rgba(0, 0, 0, 0.05) !important;
-    color: var(--text-main) !important;
-  }
-
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-2px);
-  }
-</style>
 
 {% endblock %}

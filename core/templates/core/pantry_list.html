@@ -90,50 +90,5 @@
   </div>
 </div>
 
-<style>
-  /* Scoped styles for pantry page */
-  .pantry-form input,
-  .pantry-form select,
-  .pantry-form textarea {
-    display: block;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: var(--text-main);
-    background-color: rgba(255, 255, 255, 0.8);
-    background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    appearance: none;
-    border-radius: 12px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  }
-
-  .pantry-form input:focus,
-  .pantry-form select:focus,
-  .pantry-form textarea:focus {
-    color: var(--text-main);
-    background-color: #fff;
-    border-color: var(--primary);
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
-  }
-
-  .pantry-item-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    background: rgba(255, 255, 255, 0.6);
-  }
-
-  .pantry-item-card:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .dropdown-toggle-icon::after {
-    display: none !important;
-  }
-</style>
 
 {% endblock %}
