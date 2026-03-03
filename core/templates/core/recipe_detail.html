@@ -1,108 +1,118 @@
 {% extends "core/base.html" %}
+{% block title %}{{ recipe.name }} | MealPlanner{% endblock %}
 {% block content %}
 
+<div class="row justify-content-center mt-3 mb-5">
+  <div class="col-lg-10 col-xl-9">
+
+    <!-- Navigation & Actions -->
+    <div
+      class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+      <a href="{% url 'recipe_list' %}" class="btn btn-light shadow-sm bg-white hover-lift rounded-pill px-3 fw-medium">
+        <i class="bi bi-arrow-left me-1"></i> Back to Recipes
+      </a>
+      <div class="d-flex gap-2">
+        <a href="{% url 'recipe_edit' pk=recipe.pk %}"
+          class="btn btn-outline-primary shadow-sm hover-lift px-3 fw-medium rounded-pill">
+          <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Recipe Card -->
+    <div class="glass-card overflow-hidden">
+      <!-- Header Area -->
+      <div class="position-relative bg-light" style="height: 250px;">
+        <div class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
+          style="background: linear-gradient(135deg, var(--primary-dark), var(--primary)); opacity: 0.15;">
+          <div style="font-size: 6rem; opacity: 0.3;">🍲</div>
+        </div>
+
+        <div class="position-absolute top-0 start-0 m-4">
+          <span class="badge rounded-pill bg-white text-dark shadow-sm px-3 py-2 fs-6 fw-bold border"
+            style="backdrop-filter: blur(4px);">
+            {{ recipe.category|default:"General" }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-4 p-md-5 bg-white bg-opacity-75">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-4 gap-3">
+          <h1 class="display-5 fw-bold text-dark mb-0" style="font-family: 'Outfit', sans-serif;">{{ recipe.name }}</h1>
+          <div class="d-inline-flex align-items-center bg-light rounded-pill px-4 py-2 shadow-sm border">
+            <i class="bi bi-stopwatch fs-4 me-2 text-primary"></i>
+            <div class="d-flex flex-column lh-1">
+              <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Prep
+                Time</span>
+              <span class="fw-bold fs-5 text-dark">{{ recipe.prep_time }}<span
+                  class="fs-6 text-muted fw-normal ms-1">min</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-5 mt-2">
+          <!-- Ingredients Column -->
+          <div class="col-md-5 col-lg-4 order-2 order-md-1">
+            <h3 class="fs-4 fw-bold mb-4 text-dark d-flex align-items-center gap-2">
+              <span class="text-primary">🛒</span> Ingredients
+            </h3>
+
+            <div class="glass-card p-3 bg-white" style="border-radius: 16px;">
+              <ul class="list-group list-group-flush ingredients-list">
+                {% for ing in ingredients %}
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-2 py-3 border-secondary border-opacity-10">
+                  <span class="fw-medium text-dark">{{ ing.name }}</span>
+                  <span class="badge rounded-pill bg-light border text-dark fw-bold px-3 py-2 fs-7">{{
+                    ing.quantity_required }} {{ ing.unit }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item bg-transparent text-muted py-4 text-center">
+                  <i class="bi bi-info-circle fs-4 d-block mb-2 text-warning"></i>
+                  No ingredients listed.
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Instructions Column -->
+          <div class="col-md-7 col-lg-8 order-1 order-md-2">
+            <h3 class="fs-4 fw-bold mb-4 text-dark d-flex align-items-center gap-2">
+              <span class="text-primary">👩‍🍳</span> Instructions
+            </h3>
+
+            <div class="instructions-content p-4 glass-card bg-white" style="border-radius: 16px;">
+              <div class="fs-5 text-dark lh-lg" style="white-space: pre-wrap;">{{ recipe.instructions }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <style>
-  .recipe-detail-page {
-    max-width: 750px;
-    margin: 1rem auto;
-    padding: 1.5rem;
-    background: #fdfefc;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .recipe-detail-page h2 {
-    font-weight: 700;
-    font-size: 1.7rem;
-    color: #214e34;
-    margin-bottom: 0.6rem;
-    text-align: center;
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
   }
 
-  .recipe-detail-page p {
-    margin: 0.3rem 0;
-    font-size: 0.95rem;
-    color: #444;
+  .ingredients-list .list-group-item:last-child {
+    border-bottom: none;
   }
 
-  .recipe-detail-page strong {
-    color: #2d4739;
-    font-weight: 600;
-  }
-
-  .recipe-detail-page h4 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2d4739;
-    margin-top: 1.2rem;
-    margin-bottom: 0.6rem;
-    border-left: 4px solid #26a69a;
-    padding-left: 8px;
-  }
-
-  /* Ingredients list */
-  .recipe-detail-page ul.list-group {
-    padding: 0;
-  }
-
-  .recipe-detail-page ul.list-group li {
-    background: #fff;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    border: 1px solid #e0ebe6;
-    padding: 8px 12px;
-    font-size: 0.95rem;
-    color: #333;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  }
-
-  /* Instructions card */
-  .recipe-detail-page .card {
-    background: #fff;
-    border-radius: 10px;
-    border: 1px solid #e0ebe6;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-    font-size: 0.96rem;
-    color: #333;
-    line-height: 1.6;
-  }
-
-  /* Button */
-  .recipe-detail-page .btn-secondary {
-    background: #8ce9d9;
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-    padding: 8px 16px;
-  }
-
-  .recipe-detail-page .btn-secondary:hover {
-    background: #dbe5e2;
+  .instructions-content {
+    font-family: 'Inter', sans-serif;
+    color: #334155 !important;
   }
 </style>
-
-<div class="recipe-detail-page">
-  <h2>{{ recipe.name }}</h2>
-  <p><strong>Category:</strong> {{ recipe.category }}</p>
-  <p><strong>Prep time:</strong> {{ recipe.prep_time }} min</p>
-
-  <h4>Ingredients</h4>
-  <ul class="list-group mb-3">
-    {% for ing in ingredients %}
-      <li class="list-group-item">
-        {{ ing.name }} — {{ ing.quantity_required }} {{ ing.unit }}
-      </li>
-    {% empty %}
-      <li class="list-group-item">No ingredients listed.</li>
-    {% endfor %}
-  </ul>
-
-  <h4>Instructions</h4>
-  <div class="card p-3 mb-3">
-    {{ recipe.instructions|linebreaksbr }}
-  </div>
-
-  <a href="{% url 'recipe_list' %}" class="btn btn-secondary">← Back to recipes</a>
-</div>
 
 {% endblock %}

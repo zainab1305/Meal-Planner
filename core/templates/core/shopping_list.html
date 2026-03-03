@@ -1,149 +1,156 @@
 {% extends "core/base.html" %}
+{% block title %}Shopping List | MealPlanner{% endblock %}
 {% block content %}
 
-<style>
-/* Page container */
-.shopping-list-page {
-  padding: 1rem;
-  background: #fdfefc;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  max-width: 900px;
-  margin: 1.5rem auto 2rem auto;
-}
+<div class="row justify-content-center mt-3 mb-5">
+  <div class="col-lg-10 col-xl-8">
 
-/* Page title */
-.shopping-list-page h2 {
-  font-weight: 800;
-  font-size: 1.9rem;
-  color: #2b593f;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  border-bottom: 3px solid #26a69a;
-  display: inline-block;
-  padding-bottom: 5px;
-}
+    <!-- Header -->
+    <div class="page-header text-center border-0 mb-4 pb-0">
+      <h1 class="display-5 fw-bold mb-2 text-dark">Shopping List</h1>
+      <p class="lead text-muted fs-5 mb-0">Track what you need for your next meals.</p>
+    </div>
 
-/* Form styling */
-.shopping-list-page form {
-  background: linear-gradient(135deg, #ffffff, #f4faf8);
-  padding: 18px;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  margin-bottom: 2rem;
-}
+    <div class="glass-card overflow-hidden">
+      <!-- Add Item Form -->
+      <div class="p-4 bg-light border-bottom border-secondary border-opacity-10">
+        <h4 class="fs-5 fw-bold mb-3 text-dark d-flex align-items-center gap-2">
+          <span class="text-primary">➕</span> Add New Item
+        </h4>
+        <form method="post" class="shopping-form d-flex flex-column flex-md-row gap-3 align-items-md-end">
+          {% csrf_token %}
+          <div class="flex-grow-1 row g-2">
+            {% for field in form %}
+            <div class="col-sm-{% if field.name == 'item_name' %}6{% else %}3{% endif %}">
+              <label class="form-label fw-semibold text-muted fs-7 mb-1">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+              <div class="invalid-feedback d-block small mt-1">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary shadow-sm rounded-3 py-2 px-4 fw-bold hover-lift mt-2 mt-md-0"
+            style="height: 42px;">
+            Add to List
+          </button>
+        </form>
+      </div>
 
-.shopping-list-page form p {
-  margin-bottom: 0.8rem;
-}
+      <!-- List Content -->
+      <div class="p-0">
+        <ul class="list-group list-group-flush shopping-list">
+          {% for s in items %}
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center p-4 bg-transparent border-bottom border-light {% if s.purchased %}opacity-50{% endif %}">
+            <div class="d-flex align-items-center gap-3">
 
-.shopping-list-page form label {
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 6px;
-  display: block;
-}
+              <!-- Status Checkbox/Icon -->
+              {% if s.purchased %}
+              <div class="rounded-circle bg-success bg-opacity-10 d-flex justify-content-center align-items-center"
+                style="width: 40px; height: 40px;">
+                <i class="bi bi-check-lg text-success fs-4"></i>
+              </div>
+              {% else %}
+              <a href="{% url 'mark_bought' s.id %}"
+                class="rounded-circle border border-2 border-primary d-flex justify-content-center align-items-center text-decoration-none hover-check"
+                style="width: 40px; height: 40px; transition: all 0.2s ease;">
+                <i class="bi bi-check-lg text-primary fs-4 opacity-0 d-none d-md-block"></i>
+              </a>
+              {% endif %}
 
-.shopping-list-page form input {
-  width: 100%;
-  padding: 9px 12px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 0.95rem;
-}
+              <!-- Item Details -->
+              <div class="d-flex flex-column">
+                <span
+                  class="fs-5 fw-bold text-dark {% if s.purchased %}text-decoration-line-through text-muted{% endif %} line-clamp-1"
+                  style="font-family: 'Outfit', sans-serif;">
+                  {{ s.item_name }}
+                </span>
+                <span class="text-muted small fw-medium">
+                  {{ s.quantity }} {{ s.unit }}
+                </span>
+              </div>
+            </div>
 
-.shopping-list-page form input:focus {
-  border-color: #26a69a;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(38,166,154,0.15);
-}
+            <!-- Actions -->
+            <div class="d-flex align-items-center gap-2">
+              {% if not s.purchased %}
+              <a href="{% url 'mark_bought' s.id %}"
+                class="btn btn-outline-success btn-sm rounded-pill px-3 fw-medium d-md-none hover-lift">Built</a>
+              {% else %}
+              <span
+                class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 d-none d-sm-inline-block">Purchased</span>
+              {% endif %}
+            </div>
+          </li>
+          {% empty %}
+          <li class="list-group-item p-5 text-center bg-transparent border-0">
+            <div style="font-size: 3.5rem; color: var(--primary); opacity: 0.3;" class="mb-3">🛒</div>
+            <h4 class="fw-bold text-dark mb-1">Your list is empty!</h4>
+            <p class="text-muted">Add items above to start preparing for your next meal.</p>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
 
-.shopping-list-page form button.btn-warning {
-  background: linear-gradient(145deg, #f0ad4e, #f7b354);
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: 600;
-  transition: all 0.25s ease;
-}
-
-.shopping-list-page form button.btn-warning:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(0,0,0,0.1);
-}
-
-/* Shopping list styling */
-.shopping-list-page ul.list-group {
-  padding: 0;
-  list-style: none;
-}
-
-.shopping-list-page ul.list-group li.list-group-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 15px;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, #ffffff, #f8fcf9);
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.shopping-list-page ul.list-group li.list-group-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 14px rgba(0,0,0,0.08);
-}
-
-/* Buttons inside list items */
-.shopping-list-page ul.list-group li.list-group-item a.btn-primary {
-  background: linear-gradient(145deg, #6a994e, #7ebf58);
-  border: none;
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-weight: 500;
-  margin-left: 6px;
-  color: #fff;
-  transition: background 0.25s ease;
-}
-
-.shopping-list-page ul.list-group li.list-group-item a.btn-primary:hover {
-  background: #5d8c47;
-}
-
-.shopping-list-page ul.list-group li.list-group-item span.badge.bg-success {
-  font-size: 14px;
-  padding: 5px 10px;
-  border-radius: 8px;
-}
-</style>
-
-<div class="shopping-list-page">
-  <h2>Shopping List</h2>
-
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-warning">Add</button>
-  </form>
-
-  <ul class="list-group">
-    {% for s in items %}
-      <li class="list-group-item">
-        <span>{{ s.item_name }} — {{ s.quantity }} {{ s.unit }}</span>
-        <div>
-          {% if not s.purchased %}
-            <a href="{% url 'mark_bought' s.id %}" class="btn btn-sm btn-primary">Mark bought</a>
-          {% else %}
-            <span class="badge bg-success">Bought</span>
-          {% endif %}
-        </div>
-      </li>
-    {% empty %}
-      <li class="list-group-item" style="text-align:center; color:#666;">No shopping items.</li>
-    {% endfor %}
-  </ul>
+  </div>
 </div>
+
+<style>
+  /* Refined form inputs */
+  .shopping-form input,
+  .shopping-form select {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-main);
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    height: 42px;
+  }
+
+  .shopping-form input:focus,
+  .shopping-form select:focus {
+    border-color: var(--primary);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Custom Checkbox Hover Effect */
+  .hover-check:hover {
+    background-color: rgba(16, 185, 129, 0.1);
+  }
+
+  .hover-check:hover i {
+    opacity: 1 !important;
+  }
+
+  .shopping-list .list-group-item:last-child {
+    border-bottom: none !important;
+  }
+
+  /* Add a subtle transition to items when they are marked bought */
+  .shopping-list .list-group-item {
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+  }
+
+  .shopping-list .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.4) !important;
+  }
+</style>
 
 {% endblock %}

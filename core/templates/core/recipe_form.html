@@ -1,183 +1,205 @@
 {% extends "core/base.html" %}
+{% block title %}{% if edit %}Edit{% else %}Add{% endif %} Recipe | MealPlanner{% endblock %}
 {% block content %}
 
-<style>
-  body {
-    background: #f5f7f6;
-  }
+<div class="row justify-content-center mt-3 mb-5">
+  <div class="col-lg-10 col-xl-8">
 
-  .recipe-form-page {
-    max-width: 850px;
-    margin: 1.5rem auto 2rem auto;
-    padding: 1rem;
-    background: #fdfefc;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
+    <div
+      class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+      <div>
+        <h2 class="fw-bold fs-3 mb-1 text-dark">{% if edit %}Edit Recipe{% else %}Add New Recipe{% endif %}</h2>
+        <p class="text-muted mb-0">Fill in the details for your dish.</p>
+      </div>
+      <a href="{% url 'recipe_list' %}" class="btn btn-light shadow-sm bg-white hover-lift rounded-pill px-3 fw-medium">
+        Cancel
+      </a>
+    </div>
 
-  .recipe-form-page h2 {
-    font-weight: 800;
-    font-size: 1.8rem;
-    color: #2b593f;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    border-bottom: 3px solid #26a69a;
-    display: inline-block;
-    padding-bottom: 6px;
-  }
+    <div class="glass-card p-4 p-md-5">
+      <form method="post" class="recipe-form">
+        {% csrf_token %}
 
-  .recipe-form-page form {
-    margin-top: 1rem;
-  }
+        <!-- Main Recipe Details -->
+        <h4 class="fs-5 fw-bold mb-3 text-dark d-flex align-items-center gap-2">
+          <span class="text-primary">📝</span> General Details
+        </h4>
+        <div class="row g-3 mb-4">
+          {% for field in form %}
+          <div
+            class="col-{% if field.name == 'instructions' %}12{% elif field.name == 'name' %}12{% else %}md-6{% endif %}">
+            <label class="form-label fw-semibold text-dark fs-7">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
 
-  /* Style form inputs */
-  .recipe-form-page form input, 
-  .recipe-form-page form select, 
-  .recipe-form-page form textarea {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-bottom: 12px;
-  }
+        <hr class="my-4 border-secondary border-opacity-10">
 
-  /* Ingredients table */
-  .recipe-form-page table.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 8px;
-    margin-top: 1rem;
-  }
+        <!-- Ingredients Section -->
+        <h4 class="fs-5 fw-bold mb-3 text-dark d-flex align-items-center gap-2">
+          <span class="text-primary">🛒</span> Ingredients
+        </h4>
+        <p class="text-muted small mb-3">Add the required ingredients for this recipe.</p>
 
-  .recipe-form-page table.table thead th {
-    background: #f0f7f3;
-    font-weight: 700;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-  }
+        {{ formset.management_form }}
 
-  .recipe-form-page table.table tbody tr {
-    background: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    border-radius: 10px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-middle" id="ingredient-forms">
+            <thead class="bg-light bg-opacity-50">
+              <tr>
+                <th class="fw-semibold text-muted text-uppercase fs-7" style="width: 45%;">Ingredient Name</th>
+                <th class="fw-semibold text-muted text-uppercase fs-7" style="width: 25%;">Quantity</th>
+                <th class="fw-semibold text-muted text-uppercase fs-7" style="width: 25%;">Unit</th>
+                <th style="width: 5%;"></th>
+              </tr>
+            </thead>
+            <tbody id="ingredients-tbody">
+              {% for f in formset %}
+              <tr class="ingredient-form border-bottom border-secondary border-opacity-10">
+                <td class="px-1 py-3">
+                  {{ f.id }}
+                  {{ f.name }}
+                  {% if f.name.errors %}<div class="text-danger small mt-1">{{ f.name.errors|striptags }}</div>{% endif
+                  %}
+                </td>
+                <td class="px-1 py-3">
+                  {{ f.quantity_required }}
+                  {% if f.quantity_required.errors %}<div class="text-danger small mt-1">{{
+                    f.quantity_required.errors|striptags }}</div>{% endif %}
+                </td>
+                <td class="px-1 py-3">
+                  {{ f.unit }}
+                  {% if f.unit.errors %}<div class="text-danger small mt-1">{{ f.unit.errors|striptags }}</div>{% endif
+                  %}
+                </td>
+                <td class="px-1 py-3 text-center">
+                  {% if formset.can_delete and f.instance.pk %}
+                  <div class="form-check d-flex justify-content-center m-0">
+                    {{ f.DELETE }}
+                  </div>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
-  .recipe-form-page table.table tbody tr:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.08);
-  }
+        <button type="button" id="add-ingredient"
+          class="btn btn-outline-primary btn-sm fw-medium rounded-pill px-3 py-2 hover-lift mb-4">
+          <i class="bi bi-plus-circle me-1"></i> Add Another Ingredient
+        </button>
 
-  .recipe-form-page table.table td {
-    padding: 10px;
-    text-align: center;
-    vertical-align: middle;
-  }
-
-  .recipe-form-page table.table td:first-child {
-    text-align: left;
-  }
-
-  /* Buttons */
-  .recipe-form-page .btn-success {
-    background: linear-gradient(145deg, #26a69a, #2bbbad);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.25s ease;
-  }
-
-  .recipe-form-page .btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-  }
-
-  .recipe-form-page .btn-secondary {
-    background: linear-gradient(145deg, #d7dde2, #e9eef1);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    color: #333;
-    transition: all 0.25s ease;
-  }
-
-  .recipe-form-page .btn-secondary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-  }
-
-  /* Ingredient header */
-  .recipe-form-page h5 {
-    margin-top: 1.5rem;
-    font-weight: 700;
-    color: #2d4739;
-    border-left: 5px solid #26a69a;
-    padding-left: 10px;
-  }
-</style>
-
-<div class="recipe-form-page">
-  <h2>{% if edit %}Edit Recipe{% else %}Add Recipe{% endif %}</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <h5>Ingredients</h5>
-    {{ formset.management_form }}
-    <table class="table" id="ingredient-forms">
-      <thead>
-        <tr><th>Name</th><th>Qty</th><th>Unit</th></tr>
-      </thead>
-      <tbody>
-        {% for f in formset %}
-        <tr class="ingredient-form">
-          {{ f.id }}
-          <td>{{ f.name }}</td>
-          <td>{{ f.quantity_required }}</td>
-          <td>{{ f.unit }}</td>
-          
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <button type="button" id="add-ingredient" class="btn btn-secondary mb-3">+ Add Ingredient</button>
-    <br>
-    <button type="submit" class="btn btn-success">Save Recipe</button>
-  </form>
+        <div class="d-flex justify-content-end mt-4 pt-3 border-top border-secondary border-opacity-10">
+          <button type="submit" class="btn btn-primary px-5 py-2 shadow-sm rounded-pill fw-bold hover-lift">
+            <i class="bi bi-save me-2"></i> {% if edit %}Update Recipe{% else %}Save Recipe{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- hidden empty form template -->
 <div id="empty-form" style="display:none;">
   <table>
-    <tr class="ingredient-form">
-      {{ formset.empty_form.id }}
-      <td>{{ formset.empty_form.name }}</td>
-      <td>{{ formset.empty_form.quantity_required }}</td>
-      <td>{{ formset.empty_form.unit }}</td>
-      <td>{{ formset.empty_form.DELETE }}</td>
+    <tr class="ingredient-form border-bottom border-secondary border-opacity-10">
+      <td class="px-1 py-3">
+        {{ formset.empty_form.id }}
+        {{ formset.empty_form.name }}
+      </td>
+      <td class="px-1 py-3">
+        {{ formset.empty_form.quantity_required }}
+      </td>
+      <td class="px-1 py-3">
+        {{ formset.empty_form.unit }}
+      </td>
+      <td class="px-1 py-3 text-center">
+        <!-- Optional remove button for dynamically added rows could go here -->
+      </td>
     </tr>
   </table>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  let formCount = parseInt("{{ formset.total_form_count }}");
-  const addBtn = document.getElementById("add-ingredient");
-  const formContainer = document.querySelector("#ingredient-forms tbody");
-  const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+<style>
+  /* Form Inputs Styling */
+  .recipe-form input:not([type="checkbox"]),
+  .recipe-form select,
+  .recipe-form textarea {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.8);
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    appearance: none;
+    border-radius: 12px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
 
-  addBtn.addEventListener("click", function() {
-    const newForm = formContainer.querySelector(".ingredient-form").cloneNode(true);
-    newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)/g, `form-${formCount}`);
-    formContainer.appendChild(newForm);
-    formCount++;
-    totalForms.value = formCount;
+  .recipe-form textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .recipe-form input:not([type="checkbox"]):focus,
+  .recipe-form select:focus,
+  .recipe-form textarea:focus {
+    color: var(--text-main);
+    background-color: #fff;
+    border-color: var(--primary);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* Fix for formset delete checkboxes */
+  .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.15em;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let formCount = parseInt("{{ formset.total_form_count }}");
+    const addBtn = document.getElementById("add-ingredient");
+    const formContainer = document.getElementById("ingredients-tbody");
+    const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+
+    addBtn.addEventListener("click", function () {
+      const emptyFormHtml = document.querySelector("#empty-form tbody").innerHTML;
+      const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
+
+      // Create a temporary container to convert string to DOM nodes
+      const tempDiv = document.createElement('tbody');
+      tempDiv.innerHTML = newFormHtml;
+
+      // Append the new row
+      formContainer.appendChild(tempDiv.firstElementChild);
+
+      formCount++;
+      totalForms.value = formCount;
+    });
   });
-});
 </script>
 
 {% endblock %}

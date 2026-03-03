@@ -1,151 +1,174 @@
 {% extends "core/base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard | MealPlanner{% endblock %}
 {% block content %}
 
-<style>
-  /* Background with subtle pattern + gentle accent */
-  body {
-    background: linear-gradient(135deg, #fdfdfd, #eef6f5);
-    background-attachment: fixed;
-    position: relative;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(#dce8e5 1px, transparent 1px);
-    background-size: 25px 25px;
-    opacity: 0.35;
-    z-index: -1;
-  }
-  /* Optional floating shapes for a lively feel */
-  body::after {
-    content: "";
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, #a0e3d3 20%, transparent 80%);
-    top: -100px;
-    right: -150px;
-    opacity: 0.2;
-    border-radius: 50%;
-    z-index: -1;
-  }
+<div class="page-header mt-2 mb-4 text-start border-0">
+  <h1 class="display-5 fw-bold mb-2">Welcome back, <span style="color: var(--primary);">{{ user.username }}</span> 👋
+  </h1>
+  <p class="lead text-muted fs-5">Here's what's cooking and what's in your pantry today.</p>
+</div>
 
-  /* Welcome text */
-  h1 {
-    font-weight: 900;
-    font-size: 2.6rem;
-    margin-bottom: 2rem;
-    color: #222;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
-  }
-  h1 span {
-    color: #26a69a;
-    font-family: 'Trebuchet MS', sans-serif;
-  }
+<div class="row g-4">
+  <!-- Pantry Snapshot -->
+  <div class="col-md-6 col-lg-5">
+    <div class="glass-card h-100 p-4">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+        <h3 class="mb-0 fs-4 fw-bold" style="color: var(--primary-dark);">
+          Pantry Items
+        </h3>
+        <span class="badge rounded-pill fs-6 px-3 py-2" style="background: var(--primary-dark); color: white;">{{
+          pantry_count }} Items</span>
+      </div>
 
-  /* Section titles */
-  h4 {
-    font-weight: 700;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #444;
-    border-left: 6px solid #26a69a;
-    padding-left: 12px;
-    background: rgba(38,166,154,0.05);
-    border-radius: 8px;
-    padding: 6px 12px;
-  }
+      <div class="pantry-list">
+        {% if expiring %}
+        <div class="d-flex flex-column gap-3">
+          <h6 class="text-muted text-uppercase fw-bold mb-2 fs-7" style="letter-spacing: 1px;">Expiring Soon</h6>
+          {% for p in expiring %}
+          <div class="d-flex justify-content-between align-items-center rounded-4 p-3 hover-lift transition-all"
+            style="background: rgba(255,255,255,0.6); box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.6);">
+            <div class="fw-semibold text-dark fs-5">{{ p.item_name }}</div>
+            <div class="text-muted small">
+              <span class="badge bg-warning text-dark text-opacity-75 px-2 py-1 rounded-3">Exp: {{ p.expiry_date|date:"M
+                d" }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5 pb-4 text-muted">
+          <div style="font-size: 3rem; color: var(--primary); opacity: 0.5;" class="mb-3">🌿</div>
+          <p class="mb-1 fw-medium fs-5 text-dark">Your pantry is fresh!</p>
+          <small>No items expiring soon.</small>
+        </div>
+        {% endif %}
+      </div>
 
-  /* Pantry items */
-  .list-group-item {
-    border: none;
-    border-radius: 14px;
-    margin-bottom: 12px;
-    padding: 16px 20px;
-    background: linear-gradient(145deg, #ffffff, #f0f9f8);
-    box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-  }
-  .list-group-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  }
-  .list-group-item strong {
-    font-weight: 600;
-    color: #333;
-  }
-  .list-group-item .expiry {
-    font-size: 0.9rem;
-    color: #777;
-  }
-
-  /* Recipe suggestions */
-  #suggestions .card {
-    border: none;
-    border-radius: 16px;
-    background: linear-gradient(145deg, #ffffff, #e9f6f4);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.07);
-    padding: 14px 18px;
-    margin-bottom: 12px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  #suggestions .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-  }
-  #suggestions strong {
-    color: #26a69a;
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
-  #suggestions small {
-    color: #555;
-    font-size: 0.9rem;
-  }
-</style>
-
-<h1>Welcome, <span>{{ user.username }}</span> 🎉</h1>
-
-<div class="row">
-  <div class="col-md-6">
-    <h4>Pantry ({{ pantry_count }})</h4>
-    <ul class="list-group mb-3">
-      {% for p in expiring %}
-        <li class="list-group-item">
-          <strong>{{ p.item_name }}</strong>
-          <span class="expiry">exp: {{ p.expiry_date }}</span>
-        </li>
-      {% empty %}
-        <li class="list-group-item text-muted">No expiring items soon.</li>
-      {% endfor %}
-    </ul>
+      <div class="mt-4 pt-4 mt-auto">
+        <a href="{% url 'pantry_list' %}" class="btn btn-outline-primary w-100 py-2">Manage Pantry Inventory</a>
+      </div>
+    </div>
   </div>
-  <div class="col-md-6">
-    <h4>Suggested Recipes</h4>
-    <div id="suggestions">Loading suggestions…</div>
+
+  <!-- Recipe Suggestions -->
+  <div class="col-md-6 col-lg-7">
+    <div class="glass-card h-100 p-4 d-flex flex-column">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+        <h3 class="mb-0 fs-4 fw-bold" style="color: var(--primary-dark);">
+          Suggested Recipes
+        </h3>
+        <span class="text-muted small fw-medium">Based on your pantry</span>
+      </div>
+
+      <div id="suggestions" class="row g-3 flex-grow-1">
+        <!-- Loading skeletons or actual items will go here -->
+        <div class="col-12 py-5 my-auto text-center text-muted">
+          <div class="spinner-border mb-3" role="status" style="color: var(--primary);">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mb-0 fw-medium">Finding delicious ideas...</p>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 mt-auto">
+        <a href="{% url 'recipe_list' %}" class="btn btn-primary w-100 py-2">Browse All Recipes</a>
+      </div>
+    </div>
   </div>
 </div>
 
+<style>
+  /* Scoped styles for home page cards */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .recipe-suggestion-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  .recipe-suggestion-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md) !important;
+    background: rgba(255, 255, 255, 0.95);
+  }
+</style>
+
 <script>
-async function loadSuggestions() {
-  const res = await fetch("{% url 'api_suggestions' %}");
-  const json = await res.json();
-  const c = document.getElementById('suggestions');
-  c.innerHTML = '';
-  json.results.forEach(r => {
-    c.innerHTML += `<div class="card">
-      <strong>${r.name}</strong> — ${(r.score*100).toFixed(0)}%<br>
-      <small>Missing: ${r.missing.map(m=>m.name).join(", ") || 'None'}</small>
-    </div>`;
-  });
-}
-document.addEventListener('DOMContentLoaded', loadSuggestions);
+  async function loadSuggestions() {
+    try {
+      const res = await fetch("{% url 'api_suggestions' %}");
+      const json = await res.json();
+      const c = document.getElementById('suggestions');
+      c.innerHTML = '';
+
+      if (json.results && json.results.length > 0) {
+        json.results.forEach(r => {
+          const scoreMatch = (r.score * 100).toFixed(0);
+          let matchColor = 'success';
+          let matchBgColor = '#dcfce7';
+          let matchTextColor = '#166534';
+
+          if (scoreMatch < 50) {
+            matchColor = 'danger';
+            matchBgColor = '#fee2e2';
+            matchTextColor = '#991b1b';
+          } else if (scoreMatch < 80) {
+            matchColor = 'warning';
+            matchBgColor = '#fef3c7';
+            matchTextColor = '#92400e';
+          }
+
+          const missingText = r.missing && r.missing.length > 0
+            ? r.missing.map(m => m.name).join(", ")
+            : 'None - You have everything!';
+
+          c.innerHTML += `
+          <div class="col-12 col-xl-6">
+            <div class="card h-100 shadow-sm rounded-4 recipe-suggestion-card">
+              <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h5 class="card-title fw-bold mb-0 text-dark pe-2 fs-5" style="font-family: 'Outfit', sans-serif;">${r.name}</h5>
+                  <span class="badge rounded-pill fw-bold border" style="background-color: ${matchBgColor}; color: ${matchTextColor}; border-color: rgba(0,0,0,0.05) !important;">${scoreMatch}% Match</span>
+                </div>
+                <div class="mt-auto pt-3 border-top border-secondary border-opacity-10">
+                  <p class="card-text small mb-0" style="color: #64748b;">
+                    <strong class="text-dark">Missing:</strong> ${missingText}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        });
+      } else {
+        c.innerHTML = `
+        <div class="col-12 py-5 text-center text-muted">
+          <div style="font-size: 2.5rem; opacity: 0.5;" class="mb-3">🍲</div>
+          <p class="mb-0 fw-medium fs-5 text-dark">No suggestions available.</p>
+          <small>Add more recipes to get started!</small>
+        </div>
+      `;
+      }
+    } catch (error) {
+      document.getElementById('suggestions').innerHTML = `
+      <div class="col-12 py-4 text-center text-danger">
+        <p class="mb-0">Failed to load suggestions.</p>
+      </div>
+    `;
+    }
+  }
+  document.addEventListener('DOMContentLoaded', loadSuggestions);
 </script>
 
 {% endblock %}

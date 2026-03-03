@@ -1,143 +1,135 @@
 {% extends "core/base.html" %}
+{% block title %}Recipes | MealPlanner{% endblock %}
 {% block content %}
 
-<style>
-  body {
-    background: #f5f7f6; /* keep same background across pages */
-  }
-
-  .recipes-page {
-    max-width: 900px;
-    margin: 1.5rem auto 2rem auto;
-    padding: 1rem;
-    background: #fdfefc;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .recipes-page h2 {
-    font-weight: 800;
-    font-size: 1.9rem;
-    color: #2b593f;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    border-bottom: 3px solid #26a69a;
-    display: inline-block;
-    padding-bottom: 5px;
-  }
-
-  .recipes-page .btn-success {
-    background: linear-gradient(145deg, #26a69a, #2bbbad);
-    border: none;
-    font-weight: 600;
-    border-radius: 10px;
-    padding: 8px 18px;
-    margin-bottom: 1.5rem;
-    display: inline-block;
-    transition: all 0.25s ease;
-  }
-
-  .recipes-page .btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  }
-
-  /* Recipe list styling */
-  .recipes-page .list-group-item {
-    background: linear-gradient(135deg, #ffffff, #f8fcf9);
-    margin-bottom: 1rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    padding: 16px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-  }
-
-  .recipes-page .list-group-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-  }
-
-  .recipes-page .list-group-item strong {
-    font-size: 1.2rem;
-    color: #2d4739;
-  }
-
-  .recipes-page .list-group-item small {
-    color: #666;
-    font-size: 0.9rem;
-    margin-left: 6px;
-  }
-
-  .recipes-page .list-group-item div {
-    margin-top: 6px;
-    color: #444;
-    line-height: 1.5;
-  }
-
-  .recipes-page .list-group-item .mt-2 {
-    margin-top: 12px !important;
-  }
-
-  /* Buttons inside recipe card */
-  .recipes-page .list-group-item a.btn-outline-primary {
-    border: 1px solid #2b7a78;
-    color: #2b7a78;
-    border-radius: 8px;
-    padding: 5px 12px;
-    margin-right: 6px;
-    font-weight: 500;
-  }
-
-  .recipes-page .list-group-item a.btn-outline-primary:hover {
-    background: #2b7a78;
-    color: #fff;
-  }
-
-  .recipes-page .list-group-item a.btn-primary {
-    background: linear-gradient(145deg, #6a994e, #7ebf58);
-    border: none;
-    border-radius: 8px;
-    padding: 5px 12px;
-    margin-right: 6px;
-    font-weight: 500;
-    color: #fff;
-  }
-
-  .recipes-page .list-group-item a.btn-danger {
-    background: linear-gradient(145deg, #ff6b6b, #ff7c7c);
-    border: none;
-    border-radius: 8px;
-    padding: 5px 12px;
-    font-weight: 500;
-    color: #fff;
-  }
-
-  .recipes-page p {
-    text-align: center;
-    color: #777;
-    font-style: italic;
-  }
-</style>
-
-<div class="recipes-page">
-  <h2>Recipes</h2><br>
-  <a class="btn btn-success" href="{% url 'recipe_create' %}">+ Add Recipe</a>
-
-  <div class="list-group">
-    {% for r in recipes %}
-      <div class="list-group-item">
-        <strong>{{ r.name }}</strong> <small>({{ r.prep_time }} min)</small>
-        <div>{{ r.instructions|linebreaksbr }}</div>
-        <div class="mt-2">
-          <a href="{% url 'recipe_detail' pk=r.pk %}" class="btn btn-sm btn-outline-primary">View</a>
-          <a href="{% url 'recipe_edit' pk=r.pk %}" class="btn btn-sm btn-primary">Edit</a>
-          <a href="{% url 'recipe_delete' pk=r.pk %}" class="btn btn-sm btn-danger">Delete</a>
-        </div>
-      </div>
-    {% empty %}
-      <p>No recipes yet.</p>
-    {% endfor %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mt-2 mb-4 border-0">
+  <div class="page-header text-start border-0 mb-3 mb-md-0 pb-0">
+    <h1 class="display-5 fw-bold mb-2 text-dark">My Recipes</h1>
+    <p class="lead text-muted fs-5 mb-0">Discover and manage your favorite meals.</p>
+  </div>
+  <div>
+    <a class="btn btn-primary shadow-sm py-2 px-4 rounded-pill fw-bold hover-lift" href="{% url 'recipe_create' %}">
+      <i class="bi bi-plus-lg me-2"></i>Add New Recipe
+    </a>
   </div>
 </div>
+
+<div class="row g-4 mb-5">
+  {% for r in recipes %}
+  <div class="col-md-6 col-xl-4">
+    <div class="glass-card recipe-card h-100 d-flex flex-column text-decoration-none border border-light">
+      <!-- Card Header / Image Placeholder -->
+      <div class="position-relative bg-light border-bottom border-light" style="height: 180px; overflow: hidden;">
+        <div class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center"
+          style="background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end)); opacity: 0.8;">
+          <div style="font-size: 4rem; opacity: 0.2; color: var(--primary-dark);">🍳</div>
+        </div>
+        <div class="position-absolute top-0 end-0 m-3">
+          <span class="badge rounded-pill shadow-sm"
+            style="background: rgba(255,255,255,0.9); color: var(--text-main); backdrop-filter: blur(4px);">
+            <i class="bi bi-clock me-1 text-muted"></i>{{ r.prep_time }} min
+          </span>
+        </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="p-4 d-flex flex-column flex-grow-1 bg-white bg-opacity-50">
+        <h4 class="fw-bold mb-3 text-dark fs-4 line-clamp-2" style="font-family: 'Outfit', sans-serif;">{{ r.name }}
+        </h4>
+
+        <div class="text-muted small mb-4 line-clamp-3 flex-grow-1">
+          {{ r.instructions|striptags|truncatewords:20 }}
+        </div>
+
+        <div
+          class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-10">
+          <a href="{% url 'recipe_detail' pk=r.pk %}"
+            class="btn btn-outline-primary btn-sm rounded-3 fw-medium px-3">View Details</a>
+
+          <div class="dropdown">
+            <button class="btn btn-light btn-sm border-0 shadow-none text-muted rounded-circle p-1 action-btn"
+              type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px;">
+              ⋮
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+              <li><a class="dropdown-item py-2 fw-medium text-primary" href="{% url 'recipe_edit' pk=r.pk %}">Edit
+                  Recipe</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item py-2 fw-medium text-danger"
+                  href="{% url 'recipe_delete' pk=r.pk %}">Delete</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 py-5 text-center">
+    <div class="glass-card p-5 mx-auto text-muted shadow-sm" style="max-width: 600px;">
+      <div style="font-size: 4rem; color: var(--primary); opacity: 0.4;" class="mb-3">🥪</div>
+      <h3 class="fw-bold text-dark mb-2">No recipes found</h3>
+      <p class="mb-4 fs-5">Your recipe book is currently empty. Start building your collection!</p>
+      <a class="btn btn-primary px-4 py-2 hover-lift" href="{% url 'recipe_create' %}">Create Your First Recipe</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+  .recipe-card {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .recipe-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .recipe-card .badge {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .action-btn {
+    background: transparent !important;
+    transition: background 0.2s ease;
+  }
+
+  .action-btn:hover,
+  .action-btn:focus,
+  .dropdown.show .action-btn {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: var(--text-main) !important;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+</style>
 
 {% endblock %}

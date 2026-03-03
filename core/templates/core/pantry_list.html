@@ -1,183 +1,141 @@
 {% extends "core/base.html" %}
+{% block title %}My Pantry | MealPlanner{% endblock %}
 {% block content %}
 
+<div class="page-header mt-2 mb-4 text-center border-0">
+  <h1 class="display-5 fw-bold mb-2 text-dark">My Pantry Inventory</h1>
+  <p class="lead text-muted fs-5">Manage your ingredients and track expiration dates.</p>
+</div>
+
+<div class="row g-4">
+  <!-- Add Item Form Sidebar -->
+  <div class="col-lg-4 mb-4 mb-lg-0">
+    <div class="glass-card p-4 position-sticky" style="top: 100px;">
+      <h3 class="fs-4 fw-bold mb-3" style="color: var(--primary-dark);">Add New Item</h3>
+      <form method="post" class="pantry-form">
+        {% csrf_token %}
+        <div class="mb-3">
+          {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-dark">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+          <i class="bi bi-plus-circle me-2"></i>Add to Pantry
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Inventory Grid -->
+  <div class="col-lg-8">
+    <div
+      class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+      <h3 class="mb-0 fs-4 fw-bold text-dark">Current Stock</h3>
+      <span class="badge rounded-pill fs-6 px-3 py-2 bg-light text-dark border">{{ pantry_items|length }} Items</span>
+    </div>
+
+    {% if pantry_items %}
+    <div class="row g-3">
+      {% for item in pantry_items %}
+      <div class="col-md-6 col-xl-4">
+        <div class="glass-card h-100 p-3 pantry-item-card d-flex flex-column hover-lift">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="fw-bold mb-0 text-dark fs-5 text-truncate pe-2" title="{{ item.item_name }}">{{ item.item_name }}
+            </h5>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-light border-0 py-0 px-1 text-muted shadow-none dropdown-toggle-icon"
+                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ⋮
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                <li><a class="dropdown-item py-2 text-primary fw-medium" href="{% url 'pantry_edit' item.id %}">Edit
+                    Item</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item py-2 text-danger fw-medium"
+                    href="{% url 'pantry_delete' item.id %}">Remove</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mt-auto pt-3 border-top border-secondary border-opacity-10">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-baseline gap-1">
+                <span class="fs-4 fw-bold" style="color: var(--primary-dark); line-height: 1;">{{ item.quantity
+                  }}</span>
+                <span class="text-muted small fw-medium">{{ item.unit }}</span>
+              </div>
+              {% if item.expiry_date %}
+              <span class="badge bg-light text-dark border small rounded-pill px-2 py-1">Exp: {{
+                item.expiry_date|date:"M d" }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-5 text-center text-muted">
+      <div style="font-size: 3rem; color: var(--primary); opacity: 0.5;" class="mb-3">🛒</div>
+      <h4 class="fw-bold text-dark mb-2">Your pantry is empty</h4>
+      <p class="mb-0">Add ingredients using the form to start tracking your stock.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
 <style>
-  body {
-    background: #f5f7f6; /* soft gray-green background */
-  }
-
-  .pantry-page {
-    max-width: 900px;
-    margin: 1.5rem auto 2rem auto;
-    padding: 1rem;
-    background: #fdfefc;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .pantry-page h2 {
-    font-weight: 800;
-    font-size: 1.9rem;
-    color: #2b593f;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    border-bottom: 3px solid #26a69a;
-    display: inline-block;
-    padding-bottom: 5px;
-  }
-
-  /* Form container */
-  .pantry-page form {
-    background: linear-gradient(135deg, #ffffff, #f4faf8);
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin: 0 auto 2rem auto;
-    max-width: 500px;
-  }
-
-  .pantry-page form p {
-    margin-bottom: 0.8rem;
-  }
-
-  .pantry-page form label {
-    font-weight: 600;
-    color: #444;
-    margin-bottom: 6px;
+  /* Scoped styles for pantry page */
+  .pantry-form input,
+  .pantry-form select,
+  .pantry-form textarea {
     display: block;
-  }
-
-  .pantry-page form input {
     width: 100%;
-    padding: 9px 12px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 0.95rem;
-  }
-
-  .pantry-page form input:focus {
-    border-color: #26a69a;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(38,166,154,0.15);
-  }
-
-  .pantry-page form button.btn-success {
-    background: linear-gradient(145deg, #26a69a, #2bbbad);
-    border: none;
-    padding: 10px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    width: 100%;
-    transition: all 0.25s ease;
-  }
-
-  .pantry-page form button.btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 14px rgba(0,0,0,0.1);
-  }
-
-  /* Table styling */
-  .pantry-page table.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px;
-  }
-
-  .pantry-page table.table thead th {
-    background: #e9f5ef;
-    color: #2d4739;
-    font-weight: 700;
-    padding: 12px 14px;
-    border-radius: 10px;
-    text-align: center;
-  }
-
-  .pantry-page table.table tbody tr {
-    background: linear-gradient(135deg, #ffffff, #f8fcf9);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.8);
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    appearance: none;
     border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   }
 
-  .pantry-page table.table tbody tr:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 14px rgba(0,0,0,0.08);
+  .pantry-form input:focus,
+  .pantry-form select:focus,
+  .pantry-form textarea:focus {
+    color: var(--text-main);
+    background-color: #fff;
+    border-color: var(--primary);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
   }
 
-  .pantry-page table.table td {
-    padding: 12px 14px;
-    vertical-align: middle;
-    text-align: center;
+  .pantry-item-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: rgba(255, 255, 255, 0.6);
   }
 
-  .pantry-page table.table td:first-child {
-    text-align: left;
-    font-weight: 500;
-    color: #333;
+  .pantry-item-card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
   }
 
-  .pantry-page table.table td:last-child {
-    text-align: right;
-  }
-
-  /* Buttons inside table only */
-  .pantry-page table.table a.btn-primary {
-    background: linear-gradient(145deg, #6a994e, #7ebf58);
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-weight: 500;
-    margin-right: 6px;
-    color: #fff;
-  }
-
-  .pantry-page table.table a.btn-danger {
-    background: linear-gradient(145deg, #ff6b6b, #ff7c7c);
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-weight: 500;
-    color: #fff;
+  .dropdown-toggle-icon::after {
+    display: none !important;
   }
 </style>
-
-<div class="pantry-page">
-  <h2>My Pantry</h2>
-
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Add Item</button>
-  </form>
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in pantry_items %}
-      <tr>
-        <td>{{ item.item_name }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.unit }}</td>
-        <td>
-          <a href="{% url 'pantry_edit' item.id %}" class="btn btn-sm btn-primary">Edit</a>
-          <a href="{% url 'pantry_delete' item.id %}" class="btn btn-sm btn-danger">Delete</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" style="text-align:center; color:#666;">No items in pantry yet.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
 
 {% endblock %}
