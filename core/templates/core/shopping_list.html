@@ -30,8 +30,7 @@
             </div>
             {% endfor %}
           </div>
-          <button type="submit" class="btn btn-primary shadow-sm rounded-3 py-2 px-4 fw-bold hover-lift mt-2 mt-md-0"
-            style="height: 42px;">
+          <button type="submit" class="btn btn-primary shopping-submit-btn shadow-sm rounded-3 py-2 px-4 fw-bold hover-lift mt-2 mt-md-0">
             Add to List
           </button>
         </form>
@@ -76,7 +75,7 @@
             <div class="d-flex align-items-center gap-2">
               {% if not s.purchased %}
               <a href="{% url 'mark_bought' s.id %}"
-                class="btn btn-outline-success btn-sm rounded-pill px-3 fw-medium d-md-none hover-lift">Built</a>
+                class="btn btn-outline-success btn-sm rounded-pill px-3 fw-medium d-md-none hover-lift">Bought</a>
               {% else %}
               <span
                 class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 d-none d-sm-inline-block">Purchased</span>
@@ -112,6 +111,13 @@
     border-radius: 8px;
     transition: all 0.2s ease;
     height: 42px;
+  }
+
+  .shopping-submit-btn {
+    min-width: 132px;
+    flex-shrink: 0;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   .shopping-form input:focus,

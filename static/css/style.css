@@ -116,6 +116,13 @@ h6,
     transition: all 0.3s ease;
     color: white;
     white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .btn-primary:hover,
@@ -136,6 +143,13 @@ h6,
     padding: 0.5rem 1.4rem;
     transition: all 0.3s ease;
     white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .btn-outline-primary:hover {
@@ -155,6 +169,27 @@ h6,
     border-radius: 12px;
     transition: all 0.3s ease;
     box-shadow: var(--shadow-danger);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.card-title,
+.card-text,
+.badge,
+.navbar-brand,
+.nav-link,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span {
+    overflow-wrap: anywhere;
 }
 
 .logout-btn:hover {

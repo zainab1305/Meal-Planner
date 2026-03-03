@@ -17,7 +17,7 @@ urlpatterns = [
     path("signup/", core_views.signup_view, name="signup"),
 
     # app pages
-    path("", core_views.home, name="entry"),   # ✅ dashboard
+    path("", core_views.entry, name="entry"),
     path("pantry/", core_views.pantry_list, name="pantry_list"),
     path("pantry/<int:pk>/edit/", core_views.pantry_edit, name="pantry_edit"),
     path("pantry/<int:pk>/delete/", core_views.pantry_delete, name="pantry_delete"),

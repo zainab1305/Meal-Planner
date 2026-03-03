@@ -17,8 +17,7 @@
         <h3 class="mb-0 fs-4 fw-bold" style="color: var(--primary-dark);">
           Pantry Items
         </h3>
-        <span class="badge rounded-pill fs-6 px-3 py-2" style="background: var(--primary-dark); color: white;">{{
-          pantry_count }} Items</span>
+        <span class="badge rounded-pill fs-6 px-3 py-2" style="background: var(--primary-dark); color: white;">{{ pantry_count }} Items</span>
       </div>
 
       <div class="pantry-list">
@@ -30,8 +29,7 @@
             style="background: rgba(255,255,255,0.6); box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.6);">
             <div class="fw-semibold text-dark fs-5">{{ p.item_name }}</div>
             <div class="text-muted small">
-              <span class="badge bg-warning text-dark text-opacity-75 px-2 py-1 rounded-3">Exp: {{ p.expiry_date|date:"M
-                d" }}</span>
+              <span class="badge bg-warning text-dark text-opacity-75 px-2 py-1 rounded-3">Exp: {{ p.expiry_date|date:"M d" }}</span>
             </div>
           </div>
           {% endfor %}

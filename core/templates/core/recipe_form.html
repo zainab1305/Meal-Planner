@@ -68,8 +68,7 @@
                 </td>
                 <td class="px-1 py-3">
                   {{ f.quantity_required }}
-                  {% if f.quantity_required.errors %}<div class="text-danger small mt-1">{{
-                    f.quantity_required.errors|striptags }}</div>{% endif %}
+                  {% if f.quantity_required.errors %}<div class="text-danger small mt-1">{{ f.quantity_required.errors|striptags }}</div>{% endif %}
                 </td>
                 <td class="px-1 py-3">
                   {{ f.unit }}
