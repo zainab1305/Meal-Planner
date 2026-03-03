@@ -1,0 +1,108 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<style>
+  .recipe-detail-page {
+    max-width: 750px;
+    margin: 1rem auto;
+    padding: 1.5rem;
+    background: #fdfefc;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .recipe-detail-page h2 {
+    font-weight: 700;
+    font-size: 1.7rem;
+    color: #214e34;
+    margin-bottom: 0.6rem;
+    text-align: center;
+  }
+
+  .recipe-detail-page p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    color: #444;
+  }
+
+  .recipe-detail-page strong {
+    color: #2d4739;
+    font-weight: 600;
+  }
+
+  .recipe-detail-page h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d4739;
+    margin-top: 1.2rem;
+    margin-bottom: 0.6rem;
+    border-left: 4px solid #26a69a;
+    padding-left: 8px;
+  }
+
+  /* Ingredients list */
+  .recipe-detail-page ul.list-group {
+    padding: 0;
+  }
+
+  .recipe-detail-page ul.list-group li {
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border: 1px solid #e0ebe6;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    color: #333;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  /* Instructions card */
+  .recipe-detail-page .card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e0ebe6;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    font-size: 0.96rem;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  /* Button */
+  .recipe-detail-page .btn-secondary {
+    background: #8ce9d9;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px 16px;
+  }
+
+  .recipe-detail-page .btn-secondary:hover {
+    background: #dbe5e2;
+  }
+</style>
+
+<div class="recipe-detail-page">
+  <h2>{{ recipe.name }}</h2>
+  <p><strong>Category:</strong> {{ recipe.category }}</p>
+  <p><strong>Prep time:</strong> {{ recipe.prep_time }} min</p>
+
+  <h4>Ingredients</h4>
+  <ul class="list-group mb-3">
+    {% for ing in ingredients %}
+      <li class="list-group-item">
+        {{ ing.name }} — {{ ing.quantity_required }} {{ ing.unit }}
+      </li>
+    {% empty %}
+      <li class="list-group-item">No ingredients listed.</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Instructions</h4>
+  <div class="card p-3 mb-3">
+    {{ recipe.instructions|linebreaksbr }}
+  </div>
+
+  <a href="{% url 'recipe_list' %}" class="btn btn-secondary">← Back to recipes</a>
+</div>
+
+{% endblock %}

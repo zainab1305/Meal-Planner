@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<style>
+  .delete-recipe-page {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    border: 1px solid #f3e0e0;
+  }
+
+  .delete-recipe-page h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #b00020;
+    margin-bottom: 1rem;
+  }
+
+  .delete-recipe-page p {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+  }
+
+  .delete-recipe-page button {
+    background: linear-gradient(145deg, #ff5c5c, #e53935);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: all 0.25s ease;
+  }
+
+  .delete-recipe-page button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 92, 92, 0.3);
+  }
+
+  .delete-recipe-page a {
+    display: inline-block;
+    text-decoration: none;
+    background: #e6eceb;
+    color: #333;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.25s ease;
+  }
+
+  .delete-recipe-page a:hover {
+    background: #d8e0df;
+  }
+</style>
+
+<div class="delete-recipe-page">
+  <h2>Delete Recipe</h2>
+  <p>Are you sure you want to delete <strong>"{{ recipe.name }}"</strong>?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, Delete</button>
+    <a href="{% url 'recipe_detail' recipe.id %}">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}

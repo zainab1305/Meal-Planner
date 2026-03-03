@@ -1,0 +1,87 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<style>
+  .edit-pantry-page {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+
+  .edit-pantry-page h2 {
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #222;
+    border-bottom: 3px solid #26a69a;
+    display: inline-block;
+    padding-bottom: 6px;
+  }
+
+  /* Form styling */
+  .edit-pantry-page form {
+    margin-top: 1rem;
+  }
+
+  .edit-pantry-page form p {
+    margin-bottom: 1rem;
+  }
+
+  .edit-pantry-page form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+  }
+
+  .edit-pantry-page form input,
+  .edit-pantry-page form select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: border 0.25s ease;
+  }
+
+  .edit-pantry-page form input:focus,
+  .edit-pantry-page form select:focus {
+    border-color: #26a69a;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(38,166,154,0.15);
+  }
+
+  .edit-pantry-page form button {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    background: linear-gradient(145deg, #26a69a, #2bbbad);
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    transition: all 0.25s ease;
+  }
+
+  .edit-pantry-page form button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+</style>
+
+<div class="edit-pantry-page">
+  <h2>Edit Pantry Item</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary">Save</button>
+  </form>
+</div>
+
+{% endblock %}

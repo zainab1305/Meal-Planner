@@ -1,0 +1,183 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<style>
+  body {
+    background: #f5f7f6;
+  }
+
+  .recipe-form-page {
+    max-width: 850px;
+    margin: 1.5rem auto 2rem auto;
+    padding: 1rem;
+    background: #fdfefc;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .recipe-form-page h2 {
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: #2b593f;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 3px solid #26a69a;
+    display: inline-block;
+    padding-bottom: 6px;
+  }
+
+  .recipe-form-page form {
+    margin-top: 1rem;
+  }
+
+  /* Style form inputs */
+  .recipe-form-page form input, 
+  .recipe-form-page form select, 
+  .recipe-form-page form textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+  }
+
+  /* Ingredients table */
+  .recipe-form-page table.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-top: 1rem;
+  }
+
+  .recipe-form-page table.table thead th {
+    background: #f0f7f3;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .recipe-form-page table.table tbody tr {
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .recipe-form-page table.table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+  }
+
+  .recipe-form-page table.table td {
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .recipe-form-page table.table td:first-child {
+    text-align: left;
+  }
+
+  /* Buttons */
+  .recipe-form-page .btn-success {
+    background: linear-gradient(145deg, #26a69a, #2bbbad);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+  }
+
+  .recipe-form-page .btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  }
+
+  .recipe-form-page .btn-secondary {
+    background: linear-gradient(145deg, #d7dde2, #e9eef1);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #333;
+    transition: all 0.25s ease;
+  }
+
+  .recipe-form-page .btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  }
+
+  /* Ingredient header */
+  .recipe-form-page h5 {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    color: #2d4739;
+    border-left: 5px solid #26a69a;
+    padding-left: 10px;
+  }
+</style>
+
+<div class="recipe-form-page">
+  <h2>{% if edit %}Edit Recipe{% else %}Add Recipe{% endif %}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h5>Ingredients</h5>
+    {{ formset.management_form }}
+    <table class="table" id="ingredient-forms">
+      <thead>
+        <tr><th>Name</th><th>Qty</th><th>Unit</th></tr>
+      </thead>
+      <tbody>
+        {% for f in formset %}
+        <tr class="ingredient-form">
+          {{ f.id }}
+          <td>{{ f.name }}</td>
+          <td>{{ f.quantity_required }}</td>
+          <td>{{ f.unit }}</td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="button" id="add-ingredient" class="btn btn-secondary mb-3">+ Add Ingredient</button>
+    <br>
+    <button type="submit" class="btn btn-success">Save Recipe</button>
+  </form>
+</div>
+
+<!-- hidden empty form template -->
+<div id="empty-form" style="display:none;">
+  <table>
+    <tr class="ingredient-form">
+      {{ formset.empty_form.id }}
+      <td>{{ formset.empty_form.name }}</td>
+      <td>{{ formset.empty_form.quantity_required }}</td>
+      <td>{{ formset.empty_form.unit }}</td>
+      <td>{{ formset.empty_form.DELETE }}</td>
+    </tr>
+  </table>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  let formCount = parseInt("{{ formset.total_form_count }}");
+  const addBtn = document.getElementById("add-ingredient");
+  const formContainer = document.querySelector("#ingredient-forms tbody");
+  const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+
+  addBtn.addEventListener("click", function() {
+    const newForm = formContainer.querySelector(".ingredient-form").cloneNode(true);
+    newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)/g, `form-${formCount}`);
+    formContainer.appendChild(newForm);
+    formCount++;
+    totalForms.value = formCount;
+  });
+});
+</script>
+
+{% endblock %}

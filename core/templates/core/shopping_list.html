@@ -1,0 +1,149 @@
+{% extends "core/base.html" %}
+{% block content %}
+
+<style>
+/* Page container */
+.shopping-list-page {
+  padding: 1rem;
+  background: #fdfefc;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  max-width: 900px;
+  margin: 1.5rem auto 2rem auto;
+}
+
+/* Page title */
+.shopping-list-page h2 {
+  font-weight: 800;
+  font-size: 1.9rem;
+  color: #2b593f;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border-bottom: 3px solid #26a69a;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* Form styling */
+.shopping-list-page form {
+  background: linear-gradient(135deg, #ffffff, #f4faf8);
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+.shopping-list-page form p {
+  margin-bottom: 0.8rem;
+}
+
+.shopping-list-page form label {
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.shopping-list-page form input {
+  width: 100%;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.shopping-list-page form input:focus {
+  border-color: #26a69a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38,166,154,0.15);
+}
+
+.shopping-list-page form button.btn-warning {
+  background: linear-gradient(145deg, #f0ad4e, #f7b354);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.shopping-list-page form button.btn-warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.1);
+}
+
+/* Shopping list styling */
+.shopping-list-page ul.list-group {
+  padding: 0;
+  list-style: none;
+}
+
+.shopping-list-page ul.list-group li.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #ffffff, #f8fcf9);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.shopping-list-page ul.list-group li.list-group-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.08);
+}
+
+/* Buttons inside list items */
+.shopping-list-page ul.list-group li.list-group-item a.btn-primary {
+  background: linear-gradient(145deg, #6a994e, #7ebf58);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 500;
+  margin-left: 6px;
+  color: #fff;
+  transition: background 0.25s ease;
+}
+
+.shopping-list-page ul.list-group li.list-group-item a.btn-primary:hover {
+  background: #5d8c47;
+}
+
+.shopping-list-page ul.list-group li.list-group-item span.badge.bg-success {
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+</style>
+
+<div class="shopping-list-page">
+  <h2>Shopping List</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-warning">Add</button>
+  </form>
+
+  <ul class="list-group">
+    {% for s in items %}
+      <li class="list-group-item">
+        <span>{{ s.item_name }} — {{ s.quantity }} {{ s.unit }}</span>
+        <div>
+          {% if not s.purchased %}
+            <a href="{% url 'mark_bought' s.id %}" class="btn btn-sm btn-primary">Mark bought</a>
+          {% else %}
+            <span class="badge bg-success">Bought</span>
+          {% endif %}
+        </div>
+      </li>
+    {% empty %}
+      <li class="list-group-item" style="text-align:center; color:#666;">No shopping items.</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock %}
